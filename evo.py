@@ -17,7 +17,7 @@ class CellEvolution(Evolution):
         for i in range(len(pool)):
             self.surv_time.append(0)
 
-    def cull(self):
+    def select(self):
         pass
 
     def fitness(self):
@@ -41,5 +41,5 @@ class CellEvolution(Evolution):
                 self.pool[i].set_pos([self.pool[i].get_pos()[0], height])
                 self.pool[i].set_speed([self.pool[i].get_speed()[0], 0])
             self.surv_time[i]+=1
-                
+
             pygame.draw.circle(screen, self.pool[i].get_color(), self.pool[i].get_int_pos(), self.pool[i].get_radius())
