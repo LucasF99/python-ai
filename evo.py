@@ -125,7 +125,7 @@ class CellEvolution(Evolution):
         for i in range(len(self.pool)): # mutate structure
             j = self.pool[i].net
             r = random.randint(1,100)
-            if r<=10*self.pool[i].get_mut_rate():
+            if r<=0*self.pool[i].get_mut_rate():
                 o_n = j.neurons[random.randint(0,len(j.neurons)-1)]
                 i_n = j.neurons[random.randint(0,len(j.neurons)-1)]
                 while i_n.target == None:
@@ -142,7 +142,7 @@ class CellEvolution(Evolution):
                 j.synapses.append(s_i)
                 print("added neuron to "+str(i))
             r = random.randint(1,100)
-            if r<=10*self.pool[i].get_mut_rate():
+            if r<=0*self.pool[i].get_mut_rate():
                 n = j.neurons[random.randint(0,len(j.neurons)-1)]
                 while n in j.inp or n in j.out:
                     n = j.neurons[random.randint(0,len(j.neurons)-1)]
@@ -171,7 +171,7 @@ class CellEvolution(Evolution):
             surv_time = 0
             dead = False
             em = sim.EnemyManager(3)
-            fm = sim.FoodManager(20, width, height)
+            fm = sim.FoodManager(40, width, height)
             food_tick = 0
             food_threshold = 70
             self.pool[i].set_pos([width/2,height/2])
@@ -200,8 +200,15 @@ class CellEvolution(Evolution):
                 em.update(width, height, self.pool[i])
                 em.draw(screen)
 
-                mean_en_x = sum((j.get_pos()[0]-c.get_pos()[0]) for j in em.enemies)/len(em.enemies)
-                mean_en_y = sum((j.get_pos()[0]-c.get_pos()[0]) for j in em.enemies)/len(em.enemies)
+                if len(em.enemies) > 0:
+                    mean_en_x = sum((j.get_pos()[0]-c.get_pos()[0]) for j in em.enemies)/len(em.enemies)
+                    mean_en_y = sum((j.get_pos()[0]-c.get_pos()[0]) for j in em.enemies)/len(em.enemies)
+                else:
+                    mean_en_x = 0
+                    mean_en_y=0
+
+                mean_fd_x = sum((j.get_pos()[0]-c.get_pos()[0]) for j in fm.foods)/len(fm.foods)
+                mean_fd_y = sum((j.get_pos()[0]-c.get_pos()[0]) for j in fm.foods)/len(fm.foods)
 
                 en_x_stdev = statistics.pstdev(list((j.get_pos()[0]-c.get_pos()[0]) for j in em.enemies))
                 en_y_stdev = statistics.pstdev(list((j.get_pos()[0]-c.get_pos()[0]) for j in em.enemies))
@@ -233,7 +240,7 @@ class CellEvolution(Evolution):
                 #                    rel_close_x, rel_close_y, mean_en_x, mean_en_y, en_x_stdev, en_y_stdev,
                 #                    width, height, c.get_accel()[0], c.get_accel()[1], rel_food_x, rel_food_y]) # run net and set accel
                 self.pool[i].update([c.get_pos()[0],c.get_pos()[1],c.get_speed()[0],c.get_speed()[1],
-                                    rel_close_x, rel_close_y, c.health,
+                                    rel_close_x, rel_close_y, c.health, mean_fd_x, mean_fd_y,
                                     width, height, c.get_accel()[0], c.get_accel()[1], rel_food_x, rel_food_y]) # run net and set accel
                 self.pool[i].update_speed()
 
@@ -283,7 +290,7 @@ class CellEvolution(Evolution):
                 fm.draw(screen)
 
                 food_tick+=1
-                c.health -= 0.5
+                c.health -= 0.3
 
                 pygame.display.flip()
 

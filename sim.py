@@ -19,18 +19,19 @@ class Cell(object):
         self.max_speed = 2.5
         self.speed_mult = 4
 
-        self.mut_rate = 0.3
+        self.mut_rate = 0.8
 
         self.health = 100
 
     def update(self, net_in):
         #self.net.run([(self.x-(w/2))*-2,(self.y-(h/2))*-2,10])
+        #print("updating - "+str(net_in))
         self.net.run(net_in)
         self.x_accel = self.net.get_out_values()[0]
         self.y_accel = self.net.get_out_values()[1]
 
     def eat(self, fm, foods):
-        self.health += 90
+        self.health += 70
         fm.foods.remove(foods)
 
     def get_pos(self):
@@ -103,8 +104,8 @@ class Enemy(object):
         self.y_accel = 0
         self.color = color
         self.radius = radius
-        self.accel_mult = 0.6
-        self.max_speed = 6
+        self.accel_mult = 0.4
+        self.max_speed = 5
 
     def update_speed(self):
         self.x_speed += self.x_accel

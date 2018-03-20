@@ -16,8 +16,9 @@ framerate = 60000
 cells = []
 #cells.append(Cell(net,(77, 175, 88), 8))
 
-for i in range(50):
-    cells.append(sim.Cell(nn.quick_layered_network([13,8,8,2],nn.random_func(), random.choice([-1,1])),(77,175,88),8))
+for i in range(35):
+    cells.append(sim.Cell(nn.quick_layered_network([15,8,2],
+                        nn.random_func(), random.choice([1,-1])),(77,175,88),8))
     cells[i].net.neurons[len(cells[i].net.neurons)-1].set_func(nn.tanh, 3)
     cells[i].net.neurons[len(cells[i].net.neurons)-2].set_func(nn.tanh, 3)
 
@@ -57,7 +58,7 @@ evol = evo.CellEvolution(cells)
 while True:
     evol.populate()
     evol.simulate(screen, width, height, framerate, clock)
-    evol.select(5)
+    evol.select(4)
 
 #while not done:
 #

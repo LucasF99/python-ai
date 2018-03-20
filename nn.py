@@ -24,12 +24,13 @@ class Network(object):
 
     def run(self, in_val):
         # set input neurons
+        #print("in val "+str(in_val))
         try:
             for i in range(len(in_val)):
                 self.inp[i].append_val(in_val[i])
         except IndexError:
             raise IndexException("Amount of input values does not match amount of input neurons.")
-
+        
         # run synapes
         for i in self.synapses:
             i.run()
@@ -37,6 +38,8 @@ class Network(object):
         # run middle neurons
         for i in self.neurons:
             i.run()
+
+        #print(str([i.in_val for i in self.inp]))
 
     def prt(self):
         print("neurons:")
@@ -94,11 +97,11 @@ class Neuron(object):
         return self.args
 
     def run(self):
-        if self.input_syns != None and len(self.input_syns)>0:
-            # apply activation funcion to input values
-            self.val = self.func(self.in_val, *self.args)
-            self.in_val = []
-            print(str(self.val))
+
+        # apply activation funcion to input values
+        self.val = self.func(self.in_val, *self.args)
+        #print(str(self.in_val))
+        self.in_val = []
 
         # send value to target synapses and run synapses
         if self.target != None:
@@ -137,6 +140,7 @@ class Synapse(object):
     def run(self):
         # apply weight to value
         self.val = self.in_val*self.weight
+        #print(str(self.val)+" = "+str(self.in_val)+" * "+str(self.weight))
 
         # send value to target neuron
         self.target.append_val(self.val)
