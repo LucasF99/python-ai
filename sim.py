@@ -19,13 +19,19 @@ class Cell(object):
         self.max_speed = 2.5
         self.speed_mult = 4
 
-        self.mut_rate = 0.7
+        self.mut_rate = 0.3
+
+        self.health = 100
 
     def update(self, net_in):
         #self.net.run([(self.x-(w/2))*-2,(self.y-(h/2))*-2,10])
         self.net.run(net_in)
         self.x_accel = self.net.get_out_values()[0]
         self.y_accel = self.net.get_out_values()[1]
+
+    def eat(self, fm, foods):
+        self.health += 90
+        fm.foods.remove(foods)
 
     def get_pos(self):
         return [self.x, self.y]
@@ -203,3 +209,37 @@ class EnemyManager(object):
     def draw(self, screen):
         for i in self.enemies:
             pygame.draw.circle(screen, i.get_color(), i.get_int_pos(), i.get_radius())
+
+class Food(object):
+
+    def __init__(self, pos):
+        self.x = pos[0]
+        self.y = pos[1]
+        self.pos = pos
+        self.size = 4
+
+    def draw(self, screen):
+        color = (244, 222, 124)
+        pygame.draw.circle(screen, color, [self.x, self.y], self.size)
+
+    def get_pos(self):
+        return self.pos
+
+    def get_radius(self):
+        return self.size
+
+class FoodManager(object):
+
+    def __init__(self, food_amount, width, height):
+        self.foods = []
+        self.width = width
+        self.height = height
+        for i in range(food_amount):
+            self.foods.append(Food([random.randint(0, self.width), random.randint(0, self.height)]))
+
+    def add_food(self):
+        self.foods.append(Food([random.randint(0, self.width), random.randint(0, self.height)]))
+
+    def draw(self, screen):
+        for i in self.foods:
+            i.draw(screen)

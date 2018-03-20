@@ -15,6 +15,13 @@ class Network(object):
                 for j in i.target:
                     self.synapses.append(j)
 
+    def set_input_and_origin(self):
+        for i in self.synapses:
+            i.set_target_input_syn()
+        for i in self.neurons:
+            if i.target != None:
+                i.set_syn_origin()
+
     def run(self, in_val):
         # set input neurons
         try:
@@ -64,9 +71,14 @@ class Neuron(object):
         self.args = args
         self.in_val = []
         self.val = 0
+        self.input_syns = []
 
     def set_target(self, syns):
         self.target = syns
+
+    def set_syn_origin(self):
+        for i in self.target:
+            i.origin = self
 
     def append_val(self, x):
         self.in_val.append(x)
@@ -82,9 +94,11 @@ class Neuron(object):
         return self.args
 
     def run(self):
-        # apply activation funcion to input values
-        self.val = self.func(self.in_val, *self.args)
-        self.in_val = []
+        if self.input_syns != None and len(self.input_syns)>0:
+            # apply activation funcion to input values
+            self.val = self.func(self.in_val, *self.args)
+            self.in_val = []
+            print(str(self.val))
 
         # send value to target synapses and run synapses
         if self.target != None:
@@ -102,6 +116,11 @@ class Synapse(object):
         self.weight = weight
         self.in_val = 0
         self.val = 0
+        self.origin = None
+
+    def set_target_input_syn(self):
+        if self not in self.target.input_syns:
+            self.target.input_syns.append(self)
 
     def set_weight(self, weight):
         self.weight == weight
@@ -172,7 +191,8 @@ def quick_layered_network(ls, func, *args):
     for i in range(tn-ls[len(ls)-1],tn): # loop through neurons in the last layer
         out.append(neur[i])
 
-    return Network(neur, inp, out)
+    net = Network(neur, inp, out)
+    return net
 
 def mean(in_val, *args):
     # get mean from input values
@@ -215,6 +235,10 @@ def step_neg(in_val, *a):
         return 1
     else:
         return -1
+
+def random_func():
+    #return random.choice([mean,sigmoid,tanh,relu,step,step_neg])
+    return random.choice([mean,sigmoid,tanh,relu])
 
 #
 #
