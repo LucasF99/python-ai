@@ -2,69 +2,8 @@ import pygame
 import nn
 import random
 import evo
+import sim
 
-class Cell(object):
-
-    def __init__(self, net, color, radius):
-        self.net = net
-        self.x = 200
-        self.y = 200
-
-        self.x_speed = 0
-        self.y_speed = 0
-        self.x_accel = 0
-        self.y_accel = 0
-        self.color = color
-
-        self.radius = radius
-
-    def update(self):
-        self.net.run([self.x,self.y,25])
-        self.x_accel = self.net.get_out_values()[0]
-        self.y_accel = self.net.get_out_values()[1]
-
-    def get_pos(self):
-        return [self.x, self.y]
-
-    def get_int_pos(self):
-        return [int(self.x),int(self.y)]
-
-    def set_pos(self, pos):
-        self.x = pos[0]
-        self.y = pos[1]
-
-    def get_speed(self):
-        return [self.x_speed, self.y_speed]
-
-    def set_speed(self, speed):
-        self.x_speed = speed[0]
-        self.y_speed = speed[1]
-
-    def update_speed(self):
-        self.x_speed += self.x_accel
-        self.y_speed += self.y_accel
-
-    def get_color(self):
-        return self.color
-
-    def get_radius(self):
-        return self.radius
-
-class Enemy(object):
-
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-        self.x_speed = 0
-        self.y_speed = 0
-        self.x_accel = 0
-        self.y_accel = 0
-        self.color = color
-
-    def update_speed(self):
-        self.x_speed += self.x_accel
-        self.y_speed += self.y_accel
-        
 pygame.init()
 width = 800
 height = 600
@@ -72,69 +11,72 @@ height = 600
 screen = pygame.display.set_mode((width,height))
 done = False
 clock = pygame.time.Clock()
-framerate = 60
-
-net = nn.quick_layered_network([3,5,2], nn.mean)
-
-print(str(len(net.neurons)))
-net.run([3,1,5])
-print(str(net.get_out_values()))
+framerate = 60000
 
 cells = []
 #cells.append(Cell(net,(77, 175, 88), 8))
-for i in range(100):
-    cells.append(Cell(nn.quick_layered_network([3,2,2,2,2,2,2],nn.mean),(77,175,88),8))
+
+for i in range(35):
+    cells.append(sim.Cell(nn.quick_layered_network([15,8,2],
+                        nn.random_func(), random.choice([1,-1])),(77,175,88),8))
+    cells[i].net.neurons[len(cells[i].net.neurons)-1].set_func(nn.tanh, 3)
+    cells[i].net.neurons[len(cells[i].net.neurons)-2].set_func(nn.tanh, 3)
+
+    n = cells[i].net
+    na = nn.Neuron(None, nn.random_func(), random.choice([-1,1]))
+    nb = nn.Neuron(None, nn.random_func(), random.choice([-1,1]))
+    nc = nn.Neuron(None, nn.random_func(), random.choice([-1,1]))
+    nd = nn.Neuron(None, nn.random_func(), random.choice([-1,1]))
+    sa = nn.Synapse(na, random.uniform(-1,1))
+    sb = nn.Synapse(nb, random.uniform(-1,1))
+    sc = nn.Synapse(nc, random.uniform(-1,1))
+    sd = nn.Synapse(nd, random.uniform(-1,1))
+    na.set_target([sb])
+    nb.set_target([sc])
+    nc.set_target([sd])
+    nd.set_target([sa])
+    se = nn.Synapse(na, random.uniform(-1,1))
+    sf = nn.Synapse(n.neurons[-3], random.uniform(-1,1))
+    n.neurons[-3].target.append(se)
+    na.target.append(sf)
+    n.neurons.append(na)
+    n.neurons.append(nb)
+    n.neurons.append(nc)
+    n.neurons.append(nd)
+    n.synapses.append(sa)
+    n.synapses.append(sb)
+    n.synapses.append(sc)
+    n.synapses.append(sd)
+    n.synapses.append(se)
+    n.synapses.append(sf)
+
+    n.set_input_and_origin()
 
 evol = evo.CellEvolution(cells)
 
-while not done:
+#for i in range(20):
+while True:
+    evol.populate()
+    evol.simulate(screen, width, height, framerate, clock)
+    evol.select(4)
 
-    screen.fill((0,0,0))
-    clock.tick(framerate)
-    
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            done = True
+#while not done:
+#
+#    screen.fill((16,45,45))
+#    clock.tick(framerate)
+#
+#    for event in pygame.event.get():
+#        if event.type == pygame.QUIT:
+#            done = True
+#
+#    evol.simulate(screen, width, height, framerate)
+#
+#    pygame.display.flip()
 
 # new pool
 # simulation
-# cull
+# select
 # mutate + fill pool
 # repeat
 
-##    for i in cells:
-##        i.update()
-##        i.update_speed()
-##        i.set_pos([i.get_pos()[0]+i.get_speed()[0], i.get_pos()[1]+i.get_speed()[1]])
-##        if i.get_pos()[0] < 0:
-##            i.set_pos([0, i.get_pos()[1]])
-##            i.set_speed([0, i.get_speed()[1]])
-##        if i.get_pos()[0] > width:
-##            i.set_pos([width, i.get_pos()[1]])
-##            i.set_speed([0, i.get_speed()[1]])
-##        if i.get_pos()[1] < 0:
-##            i.set_pos([i.get_pos()[0], 0])
-##            i.set_speed([i.get_speed()[0], 0])
-##        if i.get_pos()[1] > height:
-##            i.set_pos([i.get_pos()[0], height])
-##            i.set_speed([i.get_speed()[0], 0])
-##        pygame.draw.circle(screen, i.get_color(), i.get_int_pos(), i.get_radius())
-
-    evol.simulate(screen, width, height)
-    
-    pygame.display.flip()
-
 pygame.quit()
-
-
-
-
-
-
-
-
-
-
-
-
-    

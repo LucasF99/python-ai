@@ -1,4 +1,5 @@
 import random
+import math
 
 class Network(object):
     # neurons: neurons that aren't input or output
@@ -8,18 +9,45 @@ class Network(object):
         self.neurons = neurons
         self.inp = inp
         self.out = out
+        self.synapses = []
+        for i in self.neurons:
+            if i.target != None:
+                for j in i.target:
+                    self.synapses.append(j)
+
+    def set_input_and_origin(self):
+        for i in self.synapses:
+            i.set_target_input_syn()
+        for i in self.neurons:
+            if i.target != None:
+                i.set_syn_origin()
 
     def run(self, in_val):
         # set input neurons
+        #print("in val "+str(in_val))
         try:
             for i in range(len(in_val)):
                 self.inp[i].append_val(in_val[i])
         except IndexError:
             raise IndexException("Amount of input values does not match amount of input neurons.")
         
+        # run synapes
+        for i in self.synapses:
+            i.run()
+
         # run middle neurons
         for i in self.neurons:
             i.run()
+
+        #print(str([i.in_val for i in self.inp]))
+
+    def prt(self):
+        print("neurons:")
+        for i in self.neurons:
+            print(str(i.get_out()))
+        print("synapses:")
+        for i in self.synapses:
+            print(str(i.get_out()))
 
 ##        # run output neurons (this expects middle neurons
 ##        # to be linked to output neurons)
@@ -35,33 +63,50 @@ class Network(object):
         values = []
         for i in self.out:
             values.append(i.get_out())
-        return values    
+        return values
 
 class Neuron(object):
     # target: synapse list
     # func: activation function
-    def __init__(self, target, func):
+    def __init__(self, target, func, *args):
         self.target = target
         self.func = func
+        self.args = args
         self.in_val = []
         self.val = 0
+        self.input_syns = []
 
     def set_target(self, syns):
         self.target = syns
-    
+
+    def set_syn_origin(self):
+        for i in self.target:
+            i.origin = self
+
     def append_val(self, x):
         self.in_val.append(x)
-    
+
+    def set_func(self, func, *args):
+        self.func = func
+        self.args = args
+
+    def get_func(self):
+        return self.func
+
+    def get_args(self):
+        return self.args
+
     def run(self):
+
         # apply activation funcion to input values
-        self.val = self.func(self.in_val)
+        self.val = self.func(self.in_val, *self.args)
+        #print(str(self.in_val))
         self.in_val = []
 
         # send value to target synapses and run synapses
         if self.target != None:
             for i in self.target:
                 i.set_in(self.val)
-                i.run()
 
     def get_out(self):
         return self.val
@@ -74,16 +119,28 @@ class Synapse(object):
         self.weight = weight
         self.in_val = 0
         self.val = 0
+        self.origin = None
+
+    def set_target_input_syn(self):
+        if self not in self.target.input_syns:
+            self.target.input_syns.append(self)
+
+    def set_weight(self, weight):
+        self.weight == weight
+
+    def get_weight(self):
+        return self.weight
 
     def set_target(self, neuron):
         self.target = neuron
-    
+
     def set_in(self, x):
         self.in_val = x
 
     def run(self):
         # apply weight to value
         self.val = self.in_val*self.weight
+        #print(str(self.val)+" = "+str(self.in_val)+" * "+str(self.weight))
 
         # send value to target neuron
         self.target.append_val(self.val)
@@ -94,7 +151,7 @@ class Synapse(object):
 class IndexException(Exception):
     pass
 
-def quick_layered_network(ls, func):
+def quick_layered_network(ls, func, *args):
     # ls = layer size list
     # tn = total neurons
     # ts = total synapses
@@ -114,7 +171,7 @@ def quick_layered_network(ls, func):
     neur = []
     syn = []
     for i in range(tn): # initialize neurons
-        neur.append(Neuron(None, func))
+        neur.append(Neuron(None, func, *args))
     for i in range(ts): # initialize synapses
         syn.append(Synapse(None, random.uniform(-1,1)))
     for k in range(len(ls)-1): # loop through layer sizes, except last
@@ -126,7 +183,7 @@ def quick_layered_network(ls, func):
             neur[i].set_target(temp_tgt)
         for i in range(prevss,prevss+ls[k]*ls[k+1]): # loop through synapses in current layer
             syn[i].set_target(neur[prevls+ls[k]+(i%ls[k+1])])
-                
+
         prevl = ls[k]
         prevss += ls[k]*ls[k+1]
         prevls += ls[k]
@@ -137,18 +194,55 @@ def quick_layered_network(ls, func):
     out = []
     for i in range(tn-ls[len(ls)-1],tn): # loop through neurons in the last layer
         out.append(neur[i])
-    
-    return Network(neur, inp, out)
-    
-def mean(in_val):
+
+    net = Network(neur, inp, out)
+    return net
+
+def mean(in_val, *args):
     # get mean from input values
     mean = 0
     for i in in_val:
         mean += i
     mean = mean/len(in_val)
-    
+
     return mean
 
+def sigmoid(in_val, amp):
+    mn = mean(in_val)
+    if mn < 0:
+        result = 1 - 1 / (1 + math.exp(mn))
+    else:
+        result = 1 / (1 + math.exp(-mn))
+    return result * amp
+
+def relu(in_val, m):
+    mn = mean(in_val)
+    if mn < 0:
+        return 0
+    else:
+        return mn * m
+
+def tanh(in_val, m):
+    mn = mean(in_val)
+    return math.tanh(mn)*m
+
+def step(in_val, *a):
+    mn = mean(in_val)
+    if mn > 0:
+        return 1
+    else:
+        return 0
+
+def step_neg(in_val, *a):
+    mn = mean(in_val)
+    if mn > 0:
+        return 1
+    else:
+        return -1
+
+def random_func():
+    #return random.choice([mean,sigmoid,tanh,relu,step,step_neg])
+    return random.choice([mean,sigmoid,tanh,relu])
 
 #
 #
