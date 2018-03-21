@@ -210,8 +210,8 @@ class CellEvolution(Evolution):
                 mean_fd_x = sum((j.get_pos()[0]-c.get_pos()[0]) for j in fm.foods)/len(fm.foods)
                 mean_fd_y = sum((j.get_pos()[0]-c.get_pos()[0]) for j in fm.foods)/len(fm.foods)
 
-                en_x_stdev = statistics.pstdev(list((j.get_pos()[0]-c.get_pos()[0]) for j in em.enemies))
-                en_y_stdev = statistics.pstdev(list((j.get_pos()[0]-c.get_pos()[0]) for j in em.enemies))
+                #en_x_stdev = statistics.pstdev(list((j.get_pos()[0]-c.get_pos()[0]) for j in em.enemies))
+                #en_y_stdev = statistics.pstdev(list((j.get_pos()[0]-c.get_pos()[0]) for j in em.enemies))
 
                 # get closest enemy pos
                 closest_dist = math.inf
