@@ -92,7 +92,7 @@ class CellEvolution(Evolution):
                 #if r <= (1/2)*(mutation_rate)*fit_change_rate*self.pool[i].get_mut_rate()*10:
                 if r <= (1/2)*self.pool[i].get_mut_rate()*6:
                     s = self.pool[i].net.synapses[random.randint(0,len(self.pool[i].net.synapses)-1)]
-                    s.set_weight(s.get_weight()*random.uniform(0.80,1.20)*random.choice([-1,1]))
+                    s.set_weight(s.get_weight()*random.uniform(0,2)*random.choice([-1,1]))
 
         for i in range(len(self.pool)): # mutate function type
             for n in self.pool[i].net.neurons:
@@ -104,12 +104,12 @@ class CellEvolution(Evolution):
             for n in i.net.neurons:
                 r = random.randint(1,100)
                 if r <= 5*i.get_mut_rate():
-                    n.set_func(n.get_func(), *(j*random.uniform(0.8,1.2)*random.choice([-1,1]) for j in n.get_args()))
+                    n.set_func(n.get_func(), *(j*random.uniform(0,2)*random.choice([-1,1]) for j in n.get_args()))
 
         for i in self.pool: # mutate mutation rate
             r = random.randint(1,100)
             if r <= 10*i.get_mut_rate():
-                i.set_mut_rate(i.get_mut_rate()*random.uniform(0.8, 1.2))
+                i.set_mut_rate(i.get_mut_rate()*random.uniform(0.7, 1.3))
 
         for i in range(len(self.pool)): # crossover
             ni = random.randint(0, len(self.pool)-1)
@@ -207,8 +207,11 @@ class CellEvolution(Evolution):
                     mean_en_x = 0
                     mean_en_y=0
 
-                mean_fd_x = sum((j.get_pos()[0]-c.get_pos()[0]) for j in fm.foods)/len(fm.foods)
-                mean_fd_y = sum((j.get_pos()[0]-c.get_pos()[0]) for j in fm.foods)/len(fm.foods)
+                pos_x = (c.get_pos()[0]-(width/2))/(width/2)
+                pos_y = (c.get_pos()[1]-(height/2))/(height/2)
+
+                mean_fd_x = (sum((j.get_pos()[0]-c.get_pos()[0]) for j in fm.foods)/len(fm.foods))/width
+                mean_fd_y = (sum((j.get_pos()[0]-c.get_pos()[0]) for j in fm.foods)/len(fm.foods))/height
 
                 #en_x_stdev = statistics.pstdev(list((j.get_pos()[0]-c.get_pos()[0]) for j in em.enemies))
                 #en_y_stdev = statistics.pstdev(list((j.get_pos()[0]-c.get_pos()[0]) for j in em.enemies))
@@ -228,10 +231,10 @@ class CellEvolution(Evolution):
                         closest_food_y = j.get_pos()[1]
                         closest_food = math.hypot(j.get_pos()[0], j.get_pos()[1])
 
-                rel_food_x = closest_food_x-c.get_pos()[0]
-                rel_food_y = closest_food_y-c.get_pos()[1]
-                rel_close_x = closest_x-c.get_pos()[0]
-                rel_close_y = closest_y-c.get_pos()[1]
+                rel_food_x = (closest_food_x-c.get_pos()[0])/width
+                rel_food_y = (closest_food_y-c.get_pos()[1])/height
+                rel_close_x = (closest_x-c.get_pos()[0])/width
+                rel_close_y = (closest_y-c.get_pos()[1])/height
 
                 surv_time += 1
 
@@ -239,9 +242,9 @@ class CellEvolution(Evolution):
                 #self.pool[i].update([c.get_pos()[0],c.get_pos()[1],c.get_speed()[0],c.get_speed()[1],
                 #                    rel_close_x, rel_close_y, mean_en_x, mean_en_y, en_x_stdev, en_y_stdev,
                 #                    width, height, c.get_accel()[0], c.get_accel()[1], rel_food_x, rel_food_y]) # run net and set accel
-                self.pool[i].update([c.get_pos()[0],c.get_pos()[1],c.get_speed()[0],c.get_speed()[1],
+                self.pool[i].update([pos_x,pos_y,c.get_speed()[0],c.get_speed()[1],
                                     rel_close_x, rel_close_y, c.health, mean_fd_x, mean_fd_y,
-                                    width, height, c.get_accel()[0], c.get_accel()[1], rel_food_x, rel_food_y]) # run net and set accel
+                                    c.get_accel()[0], c.get_accel()[1], rel_food_x, rel_food_y]) # run net and set accel
                 self.pool[i].update_speed()
 
                 # update pos

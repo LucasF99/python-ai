@@ -240,9 +240,13 @@ def step_neg(in_val, *a):
     else:
         return -1
 
+def cos(in_val, m):
+    mn = mean(in_val)
+    return m*(math.cos(mn))
+
 def random_func():
     #return random.choice([mean,sigmoid,tanh,relu,step,step_neg])
-    return random.choice([mean,sigmoid,tanh,relu])
+    return random.choice([mean,sigmoid,tanh,relu,cos])
 
 #
 #
