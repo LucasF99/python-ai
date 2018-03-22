@@ -295,6 +295,9 @@ class CellEvolution(Evolution):
                 food_tick+=1
                 c.health -= 0.3
 
+                pygame.draw.rect(screen, (160,160,160), pygame.Rect(width, 0, 300, height))
+                pygame.draw.rect(screen, (90,90,90), pygame.Rect(width, 0, 5, height))
+
                 pygame.display.flip()
 
             self.fitness.append(surv_time)

@@ -30,7 +30,7 @@ class Network(object):
                 self.inp[i].append_val(in_val[i])
         except IndexError:
             raise IndexException("Amount of input values does not match amount of input neurons.")
-        
+
         # run synapes
         for i in self.synapses:
             i.run()
@@ -248,6 +248,29 @@ def random_func():
     #return random.choice([mean,sigmoid,tanh,relu,step,step_neg])
     return random.choice([mean,sigmoid,tanh,relu,cos])
 
+class NetworkRender(object):
+
+    def __init__(self, net, w, h):
+        self.net = net
+        self.neurons = []
+        self.synapses = []
+        self.longest_chain = 0
+        self.neur_connect = [] # neurons connected to each neuron
+        self.inp_index = []
+        self.out_index = []
+        for i in range(len(net.neurons)):
+            n = net.neurons[i]
+            if n in net.inp:
+                self.inp_index.append(i)
+            if n in net.out:
+                self.out_index.append(i)
+            for j in range(len(n.target)):
+                self.neur_connect[i].append(j.target)
+
+        for i in len(self.inp_index):
+            for j in len(self.out_index):
+                # search for path between inp and out
+                pass
 #
 #
 #### manually built network - for reference
