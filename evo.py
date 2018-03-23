@@ -177,6 +177,9 @@ class CellEvolution(Evolution):
             self.pool[i].set_pos([width/2,height/2])
             self.pool[i].set_speed([random.uniform(-1,1), random.uniform(-1,1)])
             self.pool[i].health=100
+            nn_render = sim.NetworkRender(self.pool[i].net,300,300)
+            for j in range(50):
+                nn_render.find_structure()
             while not dead:
 
                 screen.fill((16,45,45))
@@ -244,7 +247,7 @@ class CellEvolution(Evolution):
                 #                    width, height, c.get_accel()[0], c.get_accel()[1], rel_food_x, rel_food_y]) # run net and set accel
                 self.pool[i].update([pos_x,pos_y,c.get_speed()[0],c.get_speed()[1],
                                     rel_close_x, rel_close_y, c.health, mean_fd_x, mean_fd_y,
-                                    c.get_accel()[0], c.get_accel()[1], rel_food_x, rel_food_y]) # run net and set accel
+                                    c.get_accel()[0], c.get_accel()[1], rel_food_x, rel_food_y, 1]) # run net and set accel
                 self.pool[i].update_speed()
 
                 # update pos
@@ -298,7 +301,11 @@ class CellEvolution(Evolution):
                 pygame.draw.rect(screen, (160,160,160), pygame.Rect(width, 0, 300, height))
                 pygame.draw.rect(screen, (90,90,90), pygame.Rect(width, 0, 5, height))
 
+                nn_render.draw(screen,width,height/3)
+
                 pygame.display.flip()
+
+
 
             self.fitness.append(surv_time)
 

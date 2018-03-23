@@ -17,10 +17,10 @@ cells = []
 #cells.append(Cell(net,(77, 175, 88), 8))
 
 for i in range(50):
-    cells.append(sim.Cell(nn.quick_layered_network([13,8,2],
+    cells.append(sim.Cell(nn.quick_layered_network([14,8,2],
                         nn.random_func(), random.choice([1,-1])),(77,175,88),8))
-    cells[i].net.neurons[len(cells[i].net.neurons)-1].set_func(nn.tanh, 0.5)
-    cells[i].net.neurons[len(cells[i].net.neurons)-2].set_func(nn.tanh, 0.5)
+    cells[i].net.neurons[len(cells[i].net.neurons)-1].set_func(nn.tanh, 3)
+    cells[i].net.neurons[len(cells[i].net.neurons)-2].set_func(nn.tanh, 3)
 
     n = cells[i].net
     na = nn.Neuron(None, nn.random_func(), random.choice([-1,1]))
@@ -40,9 +40,13 @@ for i in range(50):
     n.neurons[-3].target.append(se)
     na.target.append(sf)
     n.neurons.append(na)
+    na.index=len(n.neurons)-1
     n.neurons.append(nb)
+    nb.index=len(n.neurons)-1
     n.neurons.append(nc)
+    nc.index=len(n.neurons)-1
     n.neurons.append(nd)
+    nd.index=len(n.neurons)-1
     n.synapses.append(sa)
     n.synapses.append(sb)
     n.synapses.append(sc)

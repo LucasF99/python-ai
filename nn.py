@@ -75,6 +75,7 @@ class Neuron(object):
         self.in_val = []
         self.val = 0
         self.input_syns = []
+        self.index = None
 
     def set_target(self, syns):
         self.target = syns
@@ -172,6 +173,7 @@ def quick_layered_network(ls, func, *args):
     syn = []
     for i in range(tn): # initialize neurons
         neur.append(Neuron(None, func, *args))
+        neur[i].index=i
     for i in range(ts): # initialize synapses
         syn.append(Synapse(None, random.uniform(-1,1)))
     for k in range(len(ls)-1): # loop through layer sizes, except last
@@ -248,29 +250,6 @@ def random_func():
     #return random.choice([mean,sigmoid,tanh,relu,step,step_neg])
     return random.choice([mean,sigmoid,tanh,relu,cos])
 
-class NetworkRender(object):
-
-    def __init__(self, net, w, h):
-        self.net = net
-        self.neurons = []
-        self.synapses = []
-        self.longest_chain = 0
-        self.neur_connect = [] # neurons connected to each neuron
-        self.inp_index = []
-        self.out_index = []
-        for i in range(len(net.neurons)):
-            n = net.neurons[i]
-            if n in net.inp:
-                self.inp_index.append(i)
-            if n in net.out:
-                self.out_index.append(i)
-            for j in range(len(n.target)):
-                self.neur_connect[i].append(j.target)
-
-        for i in len(self.inp_index):
-            for j in len(self.out_index):
-                # search for path between inp and out
-                pass
 #
 #
 #### manually built network - for reference

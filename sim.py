@@ -1,6 +1,7 @@
 import random
 import pygame
 import math
+import copy
 
 class Cell(object):
 
@@ -244,3 +245,81 @@ class FoodManager(object):
     def draw(self, screen):
         for i in self.foods:
             i.draw(screen)
+
+class NetworkRender(object):
+
+    def __init__(self, net, w, h):
+        self.net = net
+        self.neurons = []
+        self.synapses = []
+        self.longest_chain = 0
+        self.neur_connect = [] # neurons connected to each neuron
+        self.inp_index = []
+        self.out_index = []
+        self.estimates = []
+
+        for k in range(len(net.neurons)):
+            i = net.neurons[k]
+            if k != 0:
+                self.neurons.append([self.neurons[k-1][0]+random.randint(10,30)*random.choice([-1,1]),
+                                    self.neurons[k-1][1]+random.randint(10,30)*random.choice([-1,1]), i])
+            else:
+                self.neurons.append([20, 20, i])
+
+        self.min_dist = 20#w/12
+        self.s_len = 100# 1.5*math.sqrt((w*h)/len(self.neurons))
+
+        for i in net.synapses:
+            self.synapses.append([copy.deepcopy(i.origin.index),
+                                copy.deepcopy(i.target.index), i])
+
+        for i in range(len(net.neurons)):
+            n = net.neurons[i]
+            if n in net.inp:
+                self.inp_index.append(i)
+            if n in net.out:
+                self.out_index.append(i)
+            #for j in range(len(n.target)):
+            #    self.neur_connect[i].append(j.target)
+            #    pass
+
+        for i in range(len(self.inp_index)):
+            ni = net.neurons[self.inp_index[i]]
+            if ni.target != None:
+                pass
+            end = False
+            dist = 0
+
+    def search_target(self, neur, dist):
+        if neur.target != None:
+            for i in neur.target:
+                t_neur = neur.target.target
+                search_target(t_neur, dist)
+            else:
+                pass
+
+    def find_structure(self):
+        n = self.neurons
+        for i in self.neurons:
+            for j in self.neurons:
+                if math.hypot(i[0]-j[0], i[1]-j[1]) < self.min_dist:
+                    j[0]+=(self.min_dist/4)*random.choice([1,-1])
+                    j[1]+=(self.min_dist/4)*random.choice([1,-1])
+        for i in self.synapses:
+            if math.hypot(n[i[0]][0]-n[i[1]][0],n[i[1]][0]-n[i[1]][1]) > self.s_len:
+                n[i[0]][0] += (n[i[1]][0] - n[i[0]][0])/random.randint(10,25)
+                n[i[0]][1] += (n[i[1]][1] - n[i[0]][1])/random.randint(10,25)
+                n[i[1]][0] += (n[i[0]][0] - n[i[1]][0])/random.randint(10,25)
+                n[i[1]][1] += (n[i[0]][1] - n[i[1]][1])/random.randint(10,25)
+        ## Add pressure: applied by synapses over max length and neurons
+        ## under min distance, after pressure is determined, neurons
+        ## are moved according to it
+
+
+    def draw(self, screen, x, y):
+        for i in self.neurons:
+            pygame.draw.circle(screen, (0,0,200), (int(i[0]+x),int(i[1]+y)), 4, 2)
+        for i in self.synapses:
+            pygame.draw.aaline(screen, (20,20,20),
+                            (int(self.neurons[i[0]][0]+x),int(self.neurons[i[0]][1]+y)),
+                            (int(self.neurons[i[1]][0]+x),int(self.neurons[i[1]][1]+y)))
