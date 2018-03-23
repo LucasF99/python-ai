@@ -21,40 +21,41 @@ for i in range(50):
                         nn.random_func(), random.choice([1,-1])),(77,175,88),8))
     cells[i].net.neurons[len(cells[i].net.neurons)-1].set_func(nn.tanh, 3)
     cells[i].net.neurons[len(cells[i].net.neurons)-2].set_func(nn.tanh, 3)
+    cells[i].net.set_input_and_origin()
 
-    n = cells[i].net
-    na = nn.Neuron(None, nn.random_func(), random.choice([-1,1]))
-    nb = nn.Neuron(None, nn.random_func(), random.choice([-1,1]))
-    nc = nn.Neuron(None, nn.random_func(), random.choice([-1,1]))
-    nd = nn.Neuron(None, nn.random_func(), random.choice([-1,1]))
-    sa = nn.Synapse(na, random.uniform(-1,1))
-    sb = nn.Synapse(nb, random.uniform(-1,1))
-    sc = nn.Synapse(nc, random.uniform(-1,1))
-    sd = nn.Synapse(nd, random.uniform(-1,1))
-    na.set_target([sb])
-    nb.set_target([sc])
-    nc.set_target([sd])
-    nd.set_target([sa])
-    se = nn.Synapse(na, random.uniform(-1,1))
-    sf = nn.Synapse(n.neurons[-3], random.uniform(-1,1))
-    n.neurons[-3].target.append(se)
-    na.target.append(sf)
-    n.neurons.append(na)
-    na.index=len(n.neurons)-1
-    n.neurons.append(nb)
-    nb.index=len(n.neurons)-1
-    n.neurons.append(nc)
-    nc.index=len(n.neurons)-1
-    n.neurons.append(nd)
-    nd.index=len(n.neurons)-1
-    n.synapses.append(sa)
-    n.synapses.append(sb)
-    n.synapses.append(sc)
-    n.synapses.append(sd)
-    n.synapses.append(se)
-    n.synapses.append(sf)
-
-    n.set_input_and_origin()
+##    n = cells[i].net
+##    na = nn.Neuron(None, nn.random_func(), random.choice([-1,1]))
+##    nb = nn.Neuron(None, nn.random_func(), random.choice([-1,1]))
+##    nc = nn.Neuron(None, nn.random_func(), random.choice([-1,1]))
+##    nd = nn.Neuron(None, nn.random_func(), random.choice([-1,1]))
+##    sa = nn.Synapse(na, random.uniform(-1,1))
+##    sb = nn.Synapse(nb, random.uniform(-1,1))
+##    sc = nn.Synapse(nc, random.uniform(-1,1))
+##    sd = nn.Synapse(nd, random.uniform(-1,1))
+##    na.set_target([sb])
+##    nb.set_target([sc])
+##    nc.set_target([sd])
+##    nd.set_target([sa])
+##    se = nn.Synapse(na, random.uniform(-1,1))
+##    sf = nn.Synapse(n.neurons[-3], random.uniform(-1,1))
+##    n.neurons[-3].target.append(se)
+##    na.target.append(sf)
+##    n.neurons.append(na)
+##    na.index=len(n.neurons)-1
+##    n.neurons.append(nb)
+##    nb.index=len(n.neurons)-1
+##    n.neurons.append(nc)
+##    nc.index=len(n.neurons)-1
+##    n.neurons.append(nd)
+##    nd.index=len(n.neurons)-1
+##    n.synapses.append(sa)
+##    n.synapses.append(sb)
+##    n.synapses.append(sc)
+##    n.synapses.append(sd)
+##    n.synapses.append(se)
+##    n.synapses.append(sf)
+##
+##    n.set_input_and_origin()
 
 evol = evo.CellEvolution(cells)
 
